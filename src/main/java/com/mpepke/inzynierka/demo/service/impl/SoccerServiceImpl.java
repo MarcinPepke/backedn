@@ -14,6 +14,7 @@ import com.mpepke.inzynierka.demo.repository.ClubRepository;
 import com.mpepke.inzynierka.demo.repository.PlayerRepository;
 import com.mpepke.inzynierka.demo.service.FantasyService;
 import com.mpepke.inzynierka.demo.service.SoccerService;
+import com.mpepke.inzynierka.demo.service.exception.PlayerDoesNotExistsException;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,10 +83,9 @@ public class SoccerServiceImpl implements SoccerService {
         if (response.statusCode() == 200) {
             FixtureResponse fixtureResponse = new ObjectMapper().readValue(response.body(), FixtureResponse.class);
             return fixtureResponse.getResponse();
-        } else {
-            // handle error response
-            return null;
         }
+
+        return null;
     }
 
     @Override
@@ -131,11 +131,16 @@ public class SoccerServiceImpl implements SoccerService {
         Set<Team> teams = new HashSet<>();
         clubRepository.save(playerClub);
         List<Player> playerSet = players.stream().map(player -> {
-            String position = teamPlayers.stream()
-                    .filter(teamPlayer -> teamPlayer.getPlayer().getId() == player.getId())
-                    .map(TeamPlayer::getStatistics)
-                    .map(stats -> stats.get(0).getGames().getPosition())
-                    .findFirst().orElseThrow(RuntimeException::new);// Use a default value if the position is not found
+            String position = null;
+            try {
+                position = teamPlayers.stream()
+                        .filter(teamPlayer -> teamPlayer.getPlayer().getId() == player.getId())
+                        .map(TeamPlayer::getStatistics)
+                        .map(stats -> stats.get(0).getGames().getPosition())
+                        .findFirst().orElseThrow(PlayerDoesNotExistsException::new);
+            } catch (PlayerDoesNotExistsException e) {
+                throw new RuntimeException(e);
+            }
 
             System.out.println("player = " + player.getName() + " " + player.getId() + " " + i.getAndIncrement());
             return new Player((long) player.getId(), player.getName(), player.getAge(), player.getPhoto(),

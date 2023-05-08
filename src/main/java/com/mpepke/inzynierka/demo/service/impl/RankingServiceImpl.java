@@ -22,8 +22,7 @@ public class RankingServiceImpl implements RankingService {
 
     @Override
     public List<Ranking> getRankingTotal() {
-        List<Ranking> all = rankingRepository.findAll(Sort.by(Sort.Direction.DESC, "team.totalPoints"));
-        return all;
+        return rankingRepository.findAll(Sort.by(Sort.Direction.DESC, "team.totalPoints"));
 
     }
 

@@ -46,6 +46,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth").permitAll()
                 .requestMatchers("/api/user").permitAll()
                 .requestMatchers("/api/refresh-token").permitAll()
+                .requestMatchers("/api/player/stats/**").permitAll()
+                .requestMatchers("/api/player/stats/").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 

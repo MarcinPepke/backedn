@@ -85,10 +85,12 @@ public class TokenServiceImpl implements TokenService {
         Date currentTime = new Date(System.currentTimeMillis());
         Date expirationTime = new Date(System.currentTimeMillis() + (long) lifeTime * 1000);
         userService.saveUser(user.toBuilder().tokenExpiredAt(new Timestamp(expirationTime.getTime())).build());
-        return Jwts.builder().setClaims(claims)
+        return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(currentTime)
-                .setExpiration(expirationTime).signWith(SignatureAlgorithm.HS256, secret).compact();
+                .setExpiration(expirationTime)
+                .signWith(SignatureAlgorithm.HS256, secret).compact();
     }
 
 

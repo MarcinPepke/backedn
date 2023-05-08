@@ -8,16 +8,15 @@ import com.mpepke.inzynierka.demo.repository.RankingRepository;
 import com.mpepke.inzynierka.demo.repository.TeamRepository;
 import com.mpepke.inzynierka.demo.repository.UserRepository;
 import com.mpepke.inzynierka.demo.service.FantasyService;
-import com.mpepke.inzynierka.demo.service.SoccerService;
+import com.mpepke.inzynierka.demo.service.exception.PlayerDoesNotExistsException;
+import com.mpepke.inzynierka.demo.service.exception.TeamDoesNotExistsException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -82,11 +81,11 @@ public class FantasyServiceImpl implements FantasyService {
     }
 
     @Override
-    public Team removePlayerFromTeam(long teamId, long playerId) throws ChangeSetPersister.NotFoundException {
+    public Team removePlayerFromTeam(long teamId, long playerId) throws ChangeSetPersister.NotFoundException, TeamDoesNotExistsException, PlayerDoesNotExistsException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(ChangeSetPersister.NotFoundException::new);
+                .orElseThrow(TeamDoesNotExistsException::new);
         Player player = playerRepository.findById(playerId)
-                .orElseThrow(ChangeSetPersister.NotFoundException::new);
+                .orElseThrow(PlayerDoesNotExistsException::new);
 
         if (!team.getPlayers().contains(player)) {
             throw new IllegalArgumentException("Player not in the team");
@@ -126,6 +125,7 @@ public class FantasyServiceImpl implements FantasyService {
         int points = 0;
 
         System.out.println("player.getId() = " + player.getId());
+
         Optional<Player> playerToCheck = playerRepository.findById((long) player.getId());
         Player player1 = null;
 
@@ -149,7 +149,8 @@ public class FantasyServiceImpl implements FantasyService {
         // Clean sheets
         if (player1.getPosition().equals("Goalkeeper") || player1.getPosition().equals("Defender")) {
             int cleanSheets = stats.getGoals().getConceded() < 1 ? 0 : 1;
-            points += cleanSheets + 4;
+            if(cleanSheets == 0)
+                points+=4;
         } else if (player1.getPosition().equals("Midfielder")) {
             int cleanSheets = stats.getGoals().getConceded() < 1 ? 0 : 1;
             points += cleanSheets;
@@ -184,6 +185,7 @@ public class FantasyServiceImpl implements FantasyService {
         if (userTeam.getPlayers().contains(player1))
             userTeam.setCurrentGameweekPoints(userTeam.getCurrentGameweekPoints() + points);
 
+        System.out.println("punkty = " + points);
         player1.setCurrentGameWeekPoints(points);
         playerRepository.save(player1);
 

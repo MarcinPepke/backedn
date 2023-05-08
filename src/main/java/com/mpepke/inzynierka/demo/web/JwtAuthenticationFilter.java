@@ -26,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
     private final UserDetailsService userDetailsService;
-    @Autowired
+
     private final TokenService tokenService;
 
     @Override
@@ -61,9 +61,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        List<String> excludeUlrl = List.of("/api/auth","/api/user");
+        List<String> excludeUlrl = List.of("/api/auth","/api/user","api/player/stats");
         String path = request.getRequestURI();
-        if(path.startsWith("/h2-console"))
+        if(path.startsWith("/h2-console") || path.startsWith("/api/player/stats"))
             return true;
         return excludeUlrl.contains(path);
     }
