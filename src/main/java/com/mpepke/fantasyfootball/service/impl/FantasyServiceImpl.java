@@ -12,7 +12,7 @@ import com.mpepke.fantasyfootball.service.FantasyService;
 import com.mpepke.fantasyfootball.service.exception.PlayerDoesNotExistsException;
 import com.mpepke.fantasyfootball.service.exception.TeamDoesNotExistsException;
 import com.mpepke.fantasyfootball.controller.request.TeamUpdateRequest;
-import com.mpepke.inzynierka.demo.model.*;
+
 import com.mpepke.fantasyfootball.repository.TeamRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -28,7 +28,6 @@ import java.util.*;
 public class FantasyServiceImpl implements FantasyService {
 
 
-    private final UserRepository userRepository;
     private final TeamRepository teamRepository;
     private final PlayerRepository playerRepository;
     private final RankingRepository rankingRepository;
