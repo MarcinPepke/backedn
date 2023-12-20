@@ -1,2 +1,2 @@
-# fanaysy-football-backend
+# fantasy-football
 Application based on Fantasy Premier League
